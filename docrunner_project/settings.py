@@ -26,7 +26,11 @@ DATA_DIR.mkdir(parents=True, exist_ok=True)
 # SECRET_KEY — required in production, falls back to an insecure default so
 # management commands (migrate, collectstatic) work during container startup
 # before Coolify injects env vars. Gunicorn will serve with the real key.
-SECRET_KEY = os.environ.get("SECRET_KEY", "insecure-fallback-change-me-in-production")
+# SECRET_KEY is exported by entrypoint.sh before Django loads.
+# The fallback here is only reached in edge cases (tests, CI).
+import hashlib as _h, socket as _s
+_fallback_key = _h.sha256((_s.gethostname() + "docrunner").encode()).hexdigest()
+SECRET_KEY = os.environ.get("SECRET_KEY") or _fallback_key
 
 # ENCRYPTION_KEY — evaluated lazily by the Secret model; a missing key will
 # raise a clear error only when a Secret is actually read/written.
