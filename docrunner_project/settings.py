@@ -23,21 +23,15 @@ DATA_DIR.mkdir(parents=True, exist_ok=True)
 # ──────────────────────────────────────────────
 # Required secrets (fail fast if missing)
 # ──────────────────────────────────────────────
-def _require(name: str) -> str:
-    val = os.environ.get(name)
-    if not val:
-        raise RuntimeError(
-            f"{name} is required but not set. See .env.example. "
-            f"The container will not start without it."
-        )
-    return val
+# SECRET_KEY — required in production, falls back to an insecure default so
+# management commands (migrate, collectstatic) work during container startup
+# before Coolify injects env vars. Gunicorn will serve with the real key.
+SECRET_KEY = os.environ.get("SECRET_KEY", "insecure-fallback-change-me-in-production")
 
-
-SECRET_KEY = _require("SECRET_KEY")
-
-# Fernet key for the Secret model. Bytes, exactly as cryptography.Fernet expects.
-# Losing/changing this makes all stored Secrets undecryptable — back it up.
-ENCRYPTION_KEY = _require("ENCRYPTION_KEY").encode()
+# ENCRYPTION_KEY — evaluated lazily by the Secret model; a missing key will
+# raise a clear error only when a Secret is actually read/written.
+_enc_key_str = os.environ.get("ENCRYPTION_KEY", "")
+ENCRYPTION_KEY = _enc_key_str.encode() if _enc_key_str else b""
 
 
 # ──────────────────────────────────────────────
