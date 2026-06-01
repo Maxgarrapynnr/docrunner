@@ -1,0 +1,39 @@
+{% extends "docrunner/base.html" %}
+{% block title %}Runs · DocRunner{% endblock %}
+{% block nav_runs %}active{% endblock %}
+{% block content %}
+<div class="pagehead">
+  <div>
+    <h1>Run history</h1>
+    <p class="sub">most recent {{ runs|length }}</p>
+  </div>
+</div>
+
+{% if runs %}
+<div class="panel" style="padding:0;">
+  <table>
+    <thead>
+      <tr><th>Status</th><th>Template</th><th>Trigger</th><th>Records</th><th>Format</th><th>When</th><th></th></tr>
+    </thead>
+    <tbody>
+      {% for r in runs %}
+      <tr>
+        <td><span class="pill {{ r.status }}">{{ r.status }}</span></td>
+        <td>{{ r.template.name }}</td>
+        <td class="mono" style="font-size:.78rem;">{{ r.trigger }}</td>
+        <td class="mono">{{ r.record_count }}</td>
+        <td class="mono" style="font-size:.78rem;">{{ r.output_format|upper }}</td>
+        <td class="mono" style="font-size:.78rem;color:var(--ink-soft);">{{ r.queued_at|date:"m-d H:i" }}</td>
+        <td><a href="{% url 'run_detail' r.id %}">view →</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="empty">
+  <p style="font-size:1.1rem;margin-bottom:10px;">No runs yet.</p>
+  <p class="sub">Generate a document from a template to see it here.</p>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,10 @@
+{% comment %}Reusable output-format selector. Expects `output_formats` in context.{% endcomment %}
+<label class="field" style="max-width:220px;">
+  <span class="lbl">Output format</span>
+  <select name="output_format">
+    {% for value, label in output_formats %}
+    <option value="{{ value }}"{% if value == "pdf" %} selected{% endif %}>{{ label }}</option>
+    {% endfor %}
+  </select>
+</label>
+

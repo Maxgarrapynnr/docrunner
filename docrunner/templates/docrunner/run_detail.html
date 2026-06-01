@@ -1,0 +1,60 @@
+{% extends "docrunner/base.html" %}
+{% block title %}Run {{ run.id }} · DocRunner{% endblock %}
+{% block nav_runs %}active{% endblock %}
+{% block head_extra %}
+{% if run.status == "queued" or run.status == "running" %}
+<meta http-equiv="refresh" content="3">
+{% endif %}
+{% endblock %}
+{% block content %}
+<div class="pagehead">
+  <div>
+    <h1 style="display:flex;align-items:center;gap:14px;">
+      Run <span class="pill {{ run.status }}" style="font-size:.9rem;">{{ run.status }}</span>
+    </h1>
+    <p class="sub">{{ run.template.name }} · {{ run.trigger }} · {{ run.output_format|upper }}{% if run.duration_ms %} · {{ run.duration_ms }} ms{% endif %}</p>
+  </div>
+  <a href="{% url 'run_list' %}" class="btn ghost">← All runs</a>
+</div>
+
+{% if run.status == "queued" or run.status == "running" %}
+<div class="flash">Working… this page refreshes automatically.</div>
+{% endif %}
+
+{% if outputs %}
+<div class="panel">
+  <h2>Outputs</h2>
+  <table>
+    <thead><tr><th>File</th><th>Type</th><th>Size</th><th></th></tr></thead>
+    <tbody>
+      {% for o in outputs %}
+      <tr>
+        <td class="mono" style="font-size:.82rem;">{{ o.filename }}{% if o.is_archive %} <span class="pill" style="margin-left:6px;">batch zip</span>{% endif %}</td>
+        <td class="mono" style="font-size:.78rem;">{{ o.fmt|upper }}</td>
+        <td class="mono" style="font-size:.78rem;">{{ o.size_bytes|filesizeformat }}</td>
+        <td><a href="{% url 'run_output' run.id %}?output_id={{ o.id }}">download ↓</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+
+{% if report.missing or report.extra or report.errors %}
+<div class="panel" style="background:var(--paper-2);box-shadow:none;">
+  <h2>Validation</h2>
+  {% if report.errors %}<p style="margin-bottom:8px;"><strong style="color:var(--red);">Errors:</strong></p>
+    <ul style="margin:0 0 14px 20px;">{% for e in report.errors %}<li class="mono" style="font-size:.82rem;">record {{ e.record }}: {{ e.message }}</li>{% endfor %}</ul>{% endif %}
+  {% if report.missing %}<p class="mono" style="font-size:.82rem;margin-bottom:6px;"><strong>Missing fields:</strong> {{ report.missing }}</p>{% endif %}
+  {% if report.extra %}<p class="mono" style="font-size:.82rem;color:var(--ink-soft);"><strong>Ignored extras:</strong> {{ report.extra }}</p>{% endif %}
+</div>
+{% endif %}
+
+{% if report.log %}
+<div class="panel">
+  <h2>Log</h2>
+  <div class="log">{% for line in report.log %}<span class="{% if '[OK]' in line %}ok{% elif '[ERROR]' in line %}err{% elif '[WARN]' in line %}warn{% endif %}">{{ line }}</span>
+{% endfor %}</div>
+</div>
+{% endif %}
+{% endblock %}

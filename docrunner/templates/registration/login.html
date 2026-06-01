@@ -1,0 +1,26 @@
+{% extends "docrunner/base.html" %}
+{% block title %}Sign in · DocRunner{% endblock %}
+{% block content %}
+<div style="max-width:400px;margin:40px auto;">
+  <div class="pagehead" style="margin-bottom:20px;">
+    <div><h1>Sign in</h1><p class="sub">single-owner access</p></div>
+  </div>
+  <div class="panel">
+    {% if form.errors %}<div class="flash" style="border-color:var(--red);">Incorrect username or password.</div>{% endif %}
+    <form method="post" action="{% url 'login' %}">
+      {% csrf_token %}
+      <label class="field">
+        <span class="lbl">Username</span>
+        <input type="text" name="username" autofocus required>
+      </label>
+      <label class="field">
+        <span class="lbl">Password</span>
+        <input type="password" name="password" required>
+      </label>
+      <input type="hidden" name="next" value="{{ next }}">
+      <button type="submit" class="btn" style="width:100%;">Sign in</button>
+    </form>
+  </div>
+</div>
+{% endblock %}
+{% block footer_note %}authenticated{% endblock %}

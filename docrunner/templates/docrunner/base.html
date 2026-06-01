@@ -1,0 +1,160 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}DocRunner{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --paper: #f4f1ea;
+      --paper-2: #ebe6db;
+      --ink: #1a1916;
+      --ink-soft: #54504a;
+      --line: #d6cfc1;
+      --amber: #c9560f;
+      --amber-soft: #e8761f;
+      --green: #2f6f4f;
+      --red: #b23a2e;
+      --blue: #2a5b7a;
+      --shadow: 4px 4px 0 var(--ink);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Fraunces', Georgia, serif;
+      background: var(--paper);
+      background-image:
+        repeating-linear-gradient(0deg, transparent, transparent 27px, rgba(26,25,22,.025) 27px, rgba(26,25,22,.025) 28px);
+      color: var(--ink);
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+    .mono { font-family: 'JetBrains Mono', monospace; }
+    a { color: var(--amber); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── Top bar ── */
+    header.topbar {
+      border-bottom: 2px solid var(--ink);
+      background: var(--paper);
+      position: sticky; top: 0; z-index: 50;
+    }
+    .topbar-inner {
+      max-width: 1080px; margin: 0 auto; padding: 0 24px;
+      display: flex; align-items: center; justify-content: space-between; height: 64px;
+    }
+    .brand {
+      font-weight: 900; font-size: 1.5rem; letter-spacing: -.02em; color: var(--ink);
+      display: flex; align-items: baseline; gap: 8px;
+    }
+    .brand .dot { width: 11px; height: 11px; background: var(--amber); display: inline-block; border-radius: 50%; }
+    .brand:hover { text-decoration: none; }
+    nav.mainnav { display: flex; gap: 4px; }
+    nav.mainnav a {
+      font-family: 'JetBrains Mono', monospace; font-size: .8rem; font-weight: 500;
+      text-transform: uppercase; letter-spacing: .05em;
+      color: var(--ink-soft); padding: 8px 14px; border: 1.5px solid transparent;
+    }
+    nav.mainnav a:hover { color: var(--ink); border-color: var(--ink); text-decoration: none; }
+    nav.mainnav a.active { color: var(--ink); border-color: var(--ink); background: var(--paper-2); }
+
+    /* ── Layout ── */
+    main { max-width: 1080px; margin: 0 auto; padding: 40px 24px 80px; }
+    .pagehead { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 28px; gap: 16px; flex-wrap: wrap; }
+    h1 { font-size: 2.4rem; font-weight: 900; letter-spacing: -.03em; line-height: 1.05; }
+    h2 { font-size: 1.3rem; font-weight: 600; margin-bottom: 14px; letter-spacing: -.01em; }
+    .sub { font-family: 'JetBrains Mono', monospace; font-size: .8rem; color: var(--ink-soft); text-transform: uppercase; letter-spacing: .08em; }
+
+    /* ── Cards / panels ── */
+    .panel {
+      background: var(--paper); border: 2px solid var(--ink); box-shadow: var(--shadow);
+      padding: 24px; margin-bottom: 24px;
+    }
+    .grid { display: grid; gap: 18px; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+    .card {
+      background: var(--paper); border: 2px solid var(--ink); padding: 20px;
+      transition: transform .12s ease, box-shadow .12s ease; display: block; color: var(--ink);
+    }
+    .card:hover { text-decoration: none; transform: translate(-2px,-2px); box-shadow: var(--shadow); }
+    .card h3 { font-size: 1.15rem; font-weight: 600; margin-bottom: 6px; }
+    .card .meta { font-family: 'JetBrains Mono', monospace; font-size: .72rem; color: var(--ink-soft); text-transform: uppercase; letter-spacing: .06em; }
+
+    /* ── Buttons ── */
+    .btn {
+      font-family: 'JetBrains Mono', monospace; font-size: .82rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .06em;
+      background: var(--ink); color: var(--paper); border: 2px solid var(--ink);
+      padding: 11px 20px; cursor: pointer; display: inline-block; transition: all .12s ease;
+    }
+    .btn:hover { background: var(--amber); border-color: var(--amber); color: #fff; text-decoration: none; }
+    .btn.ghost { background: transparent; color: var(--ink); }
+    .btn.ghost:hover { background: var(--ink); color: var(--paper); }
+
+    /* ── Forms ── */
+    label.field { display: block; margin-bottom: 16px; }
+    label.field .lbl { font-family: 'JetBrains Mono', monospace; font-size: .76rem; font-weight: 500; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-soft); display: block; margin-bottom: 5px; }
+    label.field .lbl .type { color: var(--amber); }
+    input[type=text], input[type=number], input[type=email], input[type=password], input[type=file], select, textarea {
+      width: 100%; font-family: 'JetBrains Mono', monospace; font-size: .9rem;
+      background: var(--paper-2); border: 1.5px solid var(--line); padding: 10px 12px; color: var(--ink);
+    }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: var(--amber); background: #fff; }
+    textarea { min-height: 160px; resize: vertical; line-height: 1.55; }
+
+    /* ── Status pills ── */
+    .pill { font-family: 'JetBrains Mono', monospace; font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; padding: 3px 9px; border: 1.5px solid var(--ink); display: inline-block; }
+    .pill.success { background: var(--green); color: #fff; border-color: var(--green); }
+    .pill.failed  { background: var(--red);   color: #fff; border-color: var(--red); }
+    .pill.partial { background: var(--amber-soft); color: #fff; border-color: var(--amber-soft); }
+    .pill.running { background: var(--blue);  color: #fff; border-color: var(--blue); }
+    .pill.queued  { background: var(--paper-2); color: var(--ink-soft); }
+
+    /* ── Tables ── */
+    table { width: 100%; border-collapse: collapse; }
+    th, td { text-align: left; padding: 11px 14px; border-bottom: 1.5px solid var(--line); }
+    th { font-family: 'JetBrains Mono', monospace; font-size: .7rem; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-soft); border-bottom: 2px solid var(--ink); }
+    tr:hover td { background: var(--paper-2); }
+
+    /* ── Tabs ── */
+    .tabs { display: flex; gap: 0; border-bottom: 2px solid var(--ink); margin-bottom: 22px; }
+    .tabs button { font-family: 'JetBrains Mono', monospace; font-size: .8rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; background: transparent; border: none; border-bottom: 3px solid transparent; padding: 10px 18px; cursor: pointer; color: var(--ink-soft); margin-bottom: -2px; }
+    .tabs button.active { color: var(--ink); border-bottom-color: var(--amber); }
+    .tabpane { display: none; } .tabpane.active { display: block; }
+
+    /* ── Misc ── */
+    .empty { text-align: center; padding: 60px 20px; color: var(--ink-soft); border: 2px dashed var(--line); }
+    .log { background: var(--ink); color: #d8d2c4; font-family: 'JetBrains Mono', monospace; font-size: .8rem; padding: 16px; overflow-x: auto; line-height: 1.7; white-space: pre-wrap; }
+    .log .ok { color: #7dc99a; } .log .err { color: #e88; } .log .warn { color: #e8b84f; }
+    .flash { border: 2px solid var(--ink); padding: 12px 16px; margin-bottom: 20px; font-family: 'JetBrains Mono', monospace; font-size: .85rem; background: var(--paper-2); }
+    .row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+    footer { border-top: 2px solid var(--ink); margin-top: 60px; }
+    .footer-inner { max-width: 1080px; margin: 0 auto; padding: 18px 24px; font-family: 'JetBrains Mono', monospace; font-size: .72rem; color: var(--ink-soft); text-transform: uppercase; letter-spacing: .06em; display: flex; justify-content: space-between; }
+  </style>
+  {% block head_extra %}{% endblock %}
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="{% url 'template_list' %}" class="brand"><span class="dot"></span>DocRunner</a>
+      <nav class="mainnav">
+        <a href="{% url 'template_list' %}" class="{% block nav_templates %}{% endblock %}">Templates</a>
+        <a href="{% url 'run_list' %}" class="{% block nav_runs %}{% endblock %}">Runs</a>
+        <a href="{% url 'template_upload' %}" class="{% block nav_upload %}{% endblock %}">Upload</a>
+      </nav>
+    </div>
+  </header>
+  <main>
+    {% if messages %}{% for m in messages %}<div class="flash">{{ m }}</div>{% endfor %}{% endif %}
+    {% block content %}{% endblock %}
+  </main>
+  <footer>
+    <div class="footer-inner">
+      <span>DocRunner · self-hosted document automation</span>
+      <span>{% block footer_note %}single-owner{% endblock %}</span>
+    </div>
+  </footer>
+  {% block body_extra %}{% endblock %}
+</body>
+</html>

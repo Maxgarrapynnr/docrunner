@@ -1,0 +1,104 @@
+{% extends "docrunner/base.html" %}
+{% block title %}{{ template.name }} · DocRunner{% endblock %}
+{% block nav_templates %}active{% endblock %}
+{% block content %}
+<div class="pagehead">
+  <div>
+    <h1>{{ template.name }}</h1>
+    <p class="sub">{{ template.fmt|upper }} · {{ fields|length }} field{{ fields|length|pluralize }}{% if has_loops %} · has loops{% endif %}</p>
+  </div>
+  <a href="{% url 'template_list' %}" class="btn ghost">← All templates</a>
+</div>
+
+<div class="panel">
+  <div class="tabs">
+    <button data-tab="form" class="active">Fill form</button>
+    <button data-tab="json">Paste JSON</button>
+    <button data-tab="csv">Upload CSV</button>
+  </div>
+
+  <!-- ── Tab: auto-generated form ── -->
+  <div class="tabpane active" id="tab-form">
+    {% if has_loops %}
+    <div class="flash" style="margin-bottom:20px;">
+      This template has repeating <span class="mono">{% templatetag openblock %} for {% templatetag closeblock %}</span> sections.
+      The simple form covers flat fields only — use the <strong>Paste JSON</strong> tab for list data.
+    </div>
+    {% endif %}
+    {% if fields %}
+    <form method="post" action="{% url 'generate_form' template.id %}">
+      {% csrf_token %}
+      <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(240px,1fr));">
+        {% for f in fields %}
+        <label class="field">
+          <span class="lbl">{{ f.name }} <span class="type">{{ f.type }}</span></span>
+          {% if f.type == "number" %}
+            <input type="number" step="any" name="{{ f.name }}">
+          {% elif f.type == "boolean" %}
+            <select name="{{ f.name }}"><option value="">—</option><option value="true">true</option><option value="false">false</option></select>
+          {% else %}
+            <input type="text" name="{{ f.name }}">
+          {% endif %}
+        </label>
+        {% endfor %}
+      </div>
+      {% include "docrunner/_format_picker.html" %}
+      <button type="submit" class="btn">Generate document</button>
+    </form>
+    {% else %}
+    <p class="sub">No flat fields detected — use Paste JSON.</p>
+    {% endif %}
+  </div>
+
+  <!-- ── Tab: paste JSON ── -->
+  <div class="tabpane" id="tab-json">
+    <form method="post" action="{% url 'generate_json' template.id %}">
+      {% csrf_token %}
+      <label class="field">
+        <span class="lbl">JSON <span class="type">object = 1 doc · array = batch</span></span>
+        <textarea name="json" class="mono" placeholder='{&#10;  "client": "Acme Co",&#10;  "amount": 4200&#10;}'></textarea>
+      </label>
+      {% include "docrunner/_format_picker.html" %}
+      <button type="submit" class="btn">Generate</button>
+    </form>
+  </div>
+
+  <!-- ── Tab: CSV ── -->
+  <div class="tabpane" id="tab-csv">
+    <form method="post" enctype="multipart/form-data" action="{% url 'generate_csv' template.id %}">
+      {% csrf_token %}
+      <label class="field">
+        <span class="lbl">CSV file <span class="type">header row = field names · one doc per row</span></span>
+        <input type="file" name="file" accept=".csv" required>
+      </label>
+      {% include "docrunner/_format_picker.html" %}
+      <button type="submit" class="btn">Generate batch</button>
+    </form>
+  </div>
+</div>
+
+<div class="panel" style="background:var(--paper-2);box-shadow:none;">
+  <h2>Detected schema</h2>
+  <table>
+    <thead><tr><th>Placeholder</th><th>Type</th><th>Role</th></tr></thead>
+    <tbody>
+      {% for f in fields %}<tr><td class="mono">{{ f.name }}</td><td class="mono">{{ f.type }}</td><td>field</td></tr>{% endfor %}
+      {% for l in template.schema.loops %}<tr><td class="mono">{{ l.name }}</td><td class="mono">list</td><td>loop</td></tr>{% endfor %}
+      {% for c in template.schema.conds %}<tr><td class="mono">{{ c }}</td><td class="mono">boolean</td><td>condition</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
+
+{% block body_extra %}
+<script>
+  document.querySelectorAll('.tabs button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('.tabs button').forEach(x => x.classList.remove('active'));
+      document.querySelectorAll('.tabpane').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+      document.getElementById('tab-' + b.dataset.tab).classList.add('active');
+    });
+  });
+</script>
+{% endblock %}

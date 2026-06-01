@@ -1,0 +1,21 @@
+services:
+  web:
+    build: .
+    image: docrunner:latest
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    volumes:
+      # Persists SQLite, uploaded templates, generated outputs, and static files.
+      - docrunner_data:/app/data
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8000/accounts/login/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  docrunner_data:

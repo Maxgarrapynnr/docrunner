@@ -1,0 +1,36 @@
+{% extends "docrunner/base.html" %}
+{% block title %}Upload · DocRunner{% endblock %}
+{% block nav_upload %}active{% endblock %}
+{% block content %}
+<div class="pagehead">
+  <div>
+    <h1>Upload template</h1>
+    <p class="sub">.docx or .xlsx · placeholders extracted automatically</p>
+  </div>
+</div>
+
+<div class="panel" style="max-width:560px;">
+  <form method="post" enctype="multipart/form-data" action="{% url 'template_upload' %}">
+    {% csrf_token %}
+    <label class="field">
+      <span class="lbl">Template name <span class="type">(optional)</span></span>
+      <input type="text" name="name" placeholder="e.g. Monthly invoice">
+    </label>
+    <label class="field">
+      <span class="lbl">File <span class="type">required · .docx / .xlsx</span></span>
+      <input type="file" name="file" accept=".docx,.xlsx" required>
+    </label>
+    <div class="row" style="margin-top:8px;">
+      <button type="submit" class="btn">Upload &amp; parse</button>
+      <a href="{% url 'template_list' %}" class="btn ghost">Cancel</a>
+    </div>
+  </form>
+</div>
+
+<div class="panel" style="max-width:560px;background:var(--paper-2);box-shadow:none;">
+  <h2>Placeholder syntax</h2>
+  <p style="margin-bottom:10px;">Write values as <span class="mono">{% templatetag openvariable %}field_name{% templatetag closevariable %}</span> anywhere in the document.</p>
+  <p style="margin-bottom:10px;">Repeat rows with <span class="mono">{% templatetag openblock %} for item in items {% templatetag closeblock %}…{% templatetag openblock %} endfor {% templatetag closeblock %}</span>.</p>
+  <p>Conditionals with <span class="mono">{% templatetag openblock %} if paid {% templatetag closeblock %}…{% templatetag openblock %} endif {% templatetag closeblock %}</span>.</p>
+</div>
+{% endblock %}

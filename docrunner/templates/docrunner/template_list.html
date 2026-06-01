@@ -1,0 +1,30 @@
+{% extends "docrunner/base.html" %}
+{% block title %}Templates · DocRunner{% endblock %}
+{% block nav_templates %}active{% endblock %}
+{% block content %}
+<div class="pagehead">
+  <div>
+    <h1>Templates</h1>
+    <p class="sub">{{ templates|length }} registered</p>
+  </div>
+  <a href="{% url 'template_upload' %}" class="btn">+ Upload template</a>
+</div>
+
+{% if templates %}
+<div class="grid">
+  {% for t in templates %}
+  <a href="{% url 'template_detail' t.id %}" class="card">
+    <h3>{{ t.name }}</h3>
+    <div class="meta">{{ t.fmt|upper }} · {{ t.schema.fields|length }} field{{ t.schema.fields|length|pluralize }}{% if t.schema.has_loops %} · loops{% endif %}</div>
+    <div class="meta" style="margin-top:8px;">added {{ t.created_at|date:"Y-m-d" }}</div>
+  </a>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty">
+  <p style="font-size:1.1rem;margin-bottom:10px;">No templates yet.</p>
+  <p class="sub" style="margin-bottom:20px;">Upload a .docx or .xlsx with <span class="mono">{% templatetag openvariable %}placeholders{% templatetag closevariable %}</span> to begin.</p>
+  <a href="{% url 'template_upload' %}" class="btn">Upload your first template</a>
+</div>
+{% endif %}
+{% endblock %}

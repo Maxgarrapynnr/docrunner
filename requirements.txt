@@ -1,0 +1,11 @@
+Django>=5.0,<6.0
+django-q2
+gunicorn
+whitenoise
+cryptography
+requests
+
+# Document generation
+docxtpl          # DOCX templates (Jinja2-based)
+openpyxl         # XLSX templates
+# PDF conversion is via the bundled LibreOffice binary, not a pip package.
