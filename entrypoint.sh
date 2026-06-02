@@ -8,7 +8,7 @@ set -euo pipefail
 export SECRET_KEY="${SECRET_KEY:-$(python -c 'import secrets; print(secrets.token_urlsafe(50))')}"
 export ENCRYPTION_KEY="${ENCRYPTION_KEY:-}"
 export DEBUG="${DEBUG:-False}"
-export ALLOWED_HOSTS="${ALLOWED_HOSTS:-localhost,127.0.0.1}"
+export ALLOWED_HOSTS="${ALLOWED_HOSTS:-localhost,127.0.0.1,docrunner.owncpanel.online}"
 export CSRF_TRUSTED_ORIGINS="${CSRF_TRUSTED_ORIGINS:-}"
 export DATA_DIR="${DATA_DIR:-/app/data}"
 export TIME_ZONE="${TIME_ZONE:-UTC}"
